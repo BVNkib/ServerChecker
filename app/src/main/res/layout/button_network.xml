@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/network_button_card"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="30dp"
+    app:cardBackgroundColor="@color/background_1"
+    app:cardElevation="0dp"
+    android:clickable="true">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="3dp"
+        android:layout_height="6dp"
+        android:layout_margin="1dp"
+        android:background="@color/links" />
+
+    <View
+        android:id="@+id/line1"
+        android:layout_width="3dp"
+        android:layout_height="9dp"
+        android:layout_margin="1dp"
+        android:background="@color/links" />
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="3dp"
+        android:layout_height="13dp"
+        android:layout_margin="1dp"
+        android:background="@color/links" />
+
+    <View
+        android:id="@+id/line3"
+        android:layout_width="3dp"
+        android:layout_height="16dp"
+        android:layout_margin="1dp"
+        android:background="@color/links" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
