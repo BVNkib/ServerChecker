@@ -5,11 +5,14 @@ import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -21,10 +24,9 @@ import ru.kb.lt.serverchecker.R;
 import ru.kb.lt.serverchecker.databinding.ActivityMainBinding;
 import ru.kb.lt.serverchecker.model.Server;
 import ru.kb.lt.serverchecker.repository.ServerChecker;
-import ru.kb.lt.serverchecker.repository.ServerMonitorService;
+import ru.kb.lt.serverchecker.backgrounds.ServerMonitorService;
 import ru.kb.lt.serverchecker.view.custom.ServerAdapter;
 import ru.kb.lt.serverchecker.viewmodel.ServerViewModel;
-import ru.kb.lt.serverchecker.worker.ServerMonitorWorker;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -45,12 +47,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        requestPermissions();
+
         initialise();
         setListeners();
         setAdapters();
         setServersObserver();
     }
-
 
     @Override
     protected void onPause() {
@@ -167,6 +170,16 @@ public class MainActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, ServerMonitorService.class);
         startService(serviceIntent);
 //        ServerMonitorWorker.scheduleWork(getApplicationContext());
+    }
+
+    private void requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+                Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                startActivity(intent);
+            }
+        }
     }
 
 }

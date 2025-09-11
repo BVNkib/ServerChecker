@@ -1,4 +1,4 @@
-package ru.kb.lt.serverchecker.worker;
+package ru.kb.lt.serverchecker.backgrounds;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,7 +13,6 @@ import ru.kb.lt.serverchecker.view.activivty.MainActivity;
 
 public class NotificationUtils {
     public static final String CHANNEL_ID = "server_monitor_channel";
-    public  static final int NOTIFICATION_ID = 1;
 
     public static void createNotificationChannel(Context context) {
         NotificationChannel channel = new NotificationChannel(
@@ -28,7 +27,7 @@ public class NotificationUtils {
         notificationManager.createNotificationChannel(channel);
     }
 
-    public static void showServerDownNotification(Context context, String serverName) {
+    public static void showServerDownNotification(Context context, String serverName, long id) {
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_IMMUTABLE
@@ -45,6 +44,6 @@ public class NotificationUtils {
 
         NotificationManager notificationManager =
                 context.getSystemService(NotificationManager.class);
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        notificationManager.notify((int) id, notification);
     }
 }

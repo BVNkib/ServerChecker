@@ -1,4 +1,4 @@
-package ru.kb.lt.serverchecker.repository;
+package ru.kb.lt.serverchecker.backgrounds;
 
 import android.app.Service;
 import android.content.Intent;
@@ -12,8 +12,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import ru.kb.lt.serverchecker.model.Server;
-import ru.kb.lt.serverchecker.worker.NotificationUtils;
-import ru.kb.lt.serverchecker.worker.ServersRepository;
+import ru.kb.lt.serverchecker.repository.ServerChecker;
+import ru.kb.lt.serverchecker.repository.ServersRepository;
 
 public class ServerMonitorService extends Service {
     private static final String TAG = "ServerMonitorService";
@@ -60,7 +60,10 @@ public class ServerMonitorService extends Service {
             for (Server server : servers) {
                 if (!ServerChecker.checkServerAvailability(server)) {
                     NotificationUtils
-                            .showServerDownNotification(getApplicationContext(), server.getName());
+                            .showServerDownNotification(
+                                    getApplicationContext(),
+                                    server.getName(),
+                                    server.getId());
                 }
             }
         }, 0, CHECK_INTERVAL_MINUTES, TimeUnit.MINUTES);

@@ -1,4 +1,4 @@
-package ru.kb.lt.serverchecker.worker;
+package ru.kb.lt.serverchecker.backgrounds;
 
 import android.app.Application;
 import android.content.Context;
@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import ru.kb.lt.serverchecker.model.Server;
 import ru.kb.lt.serverchecker.repository.ServerChecker;
+import ru.kb.lt.serverchecker.repository.ServersRepository;
 
 public class ServerMonitorWorker extends Worker {
     private static final String TAG = "ServerMonitorWorker";
@@ -47,7 +48,10 @@ public class ServerMonitorWorker extends Worker {
             for (Server server : servers) {
                 if (!ServerChecker.checkServerAvailability(server)) {
                     NotificationUtils
-                            .showServerDownNotification(getApplicationContext(), server.getName());
+                            .showServerDownNotification(
+                                    getApplicationContext(),
+                                    server.getName(),
+                                    server.getId());
                 }
             }
         } catch (Exception e) {

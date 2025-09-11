@@ -1,4 +1,4 @@
-package ru.kb.lt.serverchecker.worker;
+package ru.kb.lt.serverchecker.repository;
 
 import android.app.Application;
 import android.util.Log;

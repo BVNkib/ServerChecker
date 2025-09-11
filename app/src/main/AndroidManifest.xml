@@ -30,7 +30,7 @@
         <activity
             android:name="ru.kb.lt.serverchecker.view.activivty.AddNewServerActivity"/>
         <service
-            android:name=".repository.ServerMonitorService"
+            android:name=".backgrounds.ServerMonitorService"
             android:foregroundServiceType="dataSync"
             tools:node="merge"/>
     </application>

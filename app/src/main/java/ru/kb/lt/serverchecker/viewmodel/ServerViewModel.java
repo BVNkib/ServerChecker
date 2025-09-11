@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import java.util.List;
 
 import ru.kb.lt.serverchecker.model.Server;
-import ru.kb.lt.serverchecker.worker.ServersRepository;
+import ru.kb.lt.serverchecker.repository.ServersRepository;
 
 public class ServerViewModel extends AndroidViewModel {
     private final ServersRepository repository;
