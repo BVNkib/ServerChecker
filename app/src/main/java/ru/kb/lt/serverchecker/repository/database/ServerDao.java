@@ -26,10 +26,6 @@ public interface ServerDao {
     @Query("SELECT * FROM Server ORDER BY name")
     LiveData<List<Server>> getAllServers();
 
-    // Синхронный метод для получения всех серверов
     @Query("SELECT * FROM Server ORDER BY name")
     List<Server> getAllServersSync();
-
-    @Query("SELECT * FROM Server WHERE id = :id")
-    LiveData<Server> getServerById(int id);
 }

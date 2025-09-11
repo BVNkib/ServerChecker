@@ -50,7 +50,6 @@ public class ServerMonitorService extends Service {
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleWithFixedDelay(() -> {
-            // Получаем все серверы из базы данных
             List<Server> servers = serversRepository.getAllServersSync();
 
             if (servers.isEmpty()) {
@@ -58,7 +57,6 @@ public class ServerMonitorService extends Service {
                 return;
             }
 
-            // Проверяем каждый сервер
             for (Server server : servers) {
                 if (!ServerChecker.checkServerAvailability(server)) {
                     NotificationUtils

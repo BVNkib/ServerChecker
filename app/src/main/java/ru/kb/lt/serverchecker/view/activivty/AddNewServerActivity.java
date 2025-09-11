@@ -36,6 +36,7 @@ public class AddNewServerActivity extends AppCompatActivity {
 
     private void setListeners() {
         binding.addServer.setOnClickListener(v -> addServer());
+        binding.backButton.setOnClickListener(v -> finish());
     }
 
     private void addServer() {
@@ -51,5 +52,13 @@ public class AddNewServerActivity extends AppCompatActivity {
             serverViewModel.insert(new Server(url, name));
             finish();
         }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right);
     }
 }
