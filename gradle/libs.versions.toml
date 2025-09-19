@@ -6,6 +6,7 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 room = "2.8.0"
+workRuntime = "2.10.4"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -13,13 +14,11 @@ ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitV
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-#room
+work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
+work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRuntime" }
 room-common = { group = "androidx.room", name = "room-common", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-
-[bundles]
-db = ["room-common", "room-runtime"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
