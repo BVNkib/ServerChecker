@@ -47,9 +47,10 @@ public class NetworkButton {
     }
 
     private void setColor(int color) {
-        binding.line.setBackgroundColor(context.getColor(color));
-        binding.line1.setBackgroundColor(context.getColor(color));
-        binding.line2.setBackgroundColor(context.getColor(color));
-        binding.line3.setBackgroundColor(context.getColor(color));
+        int trueColor = context.getColor(color);
+        binding.line.setBackgroundColor(trueColor);
+        binding.line1.setBackgroundColor(trueColor);
+        binding.line2.setBackgroundColor(trueColor);
+        binding.line3.setBackgroundColor(trueColor);
     }
 }

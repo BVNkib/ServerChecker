@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Objects;
 
 import ru.kb.lt.serverchecker.R;
+import ru.kb.lt.serverchecker.backgrounds.ServerMonitorWorker;
 import ru.kb.lt.serverchecker.databinding.ActivityMainBinding;
 import ru.kb.lt.serverchecker.model.Server;
 import ru.kb.lt.serverchecker.repository.ServerChecker;
-import ru.kb.lt.serverchecker.backgrounds.ServerMonitorService;
 import ru.kb.lt.serverchecker.view.custom.ServerAdapter;
 import ru.kb.lt.serverchecker.viewmodel.ServerViewModel;
 
@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         setAdapters();
         setServersObserver();
+
+        ServerMonitorWorker.scheduleWork(getApplicationContext());
     }
 
     @Override
@@ -106,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
     private void setServersObserver() {
         serverViewModel.getAllServers().observe(this, servers -> {
             if (servers == null) return;
+            updateServersUi(servers);
             checkAllServers(servers);
             stopProgress();
-            startBackgroundChecks();
         });
     }
     //endregion
@@ -136,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void checkServer(Server server) {
         ServerChecker.checkServerAvailability(server, (isAvailable, serverName) -> {
             for (int id = 0; id < servers.size(); id++) {
@@ -150,27 +151,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void checkAllServers(List<Server> servers) {
         ServerChecker.checkServersAvailability(servers, (checkedServers) -> {
             if (checkedServers == null) return;
-            this.servers.clear();
-            this.servers.addAll(checkedServers);
-            runOnUiThread(() -> serverAdapter.notifyDataSetChanged());
+            updateServersUi(checkedServers);
             Log.d(TAG, "Servers checked! " + checkedServers.size() + " " + servers.size());
         });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void updateServersUi(List<Server> newServers) {
+        this.servers.clear();
+        this.servers.addAll(newServers);
+        runOnUiThread(() -> serverAdapter.notifyDataSetChanged());
     }
 
     private void deleteServer(Server server) {
         serverViewModel.delete(server);
     }
     //endregion
-
-    private void startBackgroundChecks() {
-        Intent serviceIntent = new Intent(this, ServerMonitorService.class);
-        startService(serviceIntent);
-//        ServerMonitorWorker.scheduleWork(getApplicationContext());
-    }
 
     private void requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

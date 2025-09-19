@@ -5,7 +5,9 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -21,15 +23,16 @@ import ru.kb.lt.serverchecker.repository.ServersRepository;
 
 public class ServerMonitorWorker extends Worker {
     private static final String TAG = "ServerMonitorWorker";
-    private static final String WORK_NAME = "ServerMonitorWork";
+    private static final String WORK_NAME = "WORK_NAME_LOL";
 
     private final ServersRepository serversRepository;
 
     public ServerMonitorWorker(
-            @NonNull Application application,
+            @NonNull Context context,
             @NonNull WorkerParameters workerParams) {
-        super(application.getApplicationContext(), workerParams);
+        super(context, workerParams);
         Log.d(TAG, "Create worker!");
+        Application application = (Application) context.getApplicationContext();
         serversRepository = new ServersRepository(application);
     }
 
@@ -37,16 +40,17 @@ public class ServerMonitorWorker extends Worker {
     @Override
     public Result doWork() {
         Log.d(TAG, "Start worker");
+        NotificationUtils.createNotificationChannel(getApplicationContext());
         try {
             List<Server> servers = serversRepository.getAllServersSync();
-
             if (servers.isEmpty()) {
                 Log.d(TAG, "No servers in worker");
-                return Result.success();
+                return Result.failure();
             }
 
             for (Server server : servers) {
                 if (!ServerChecker.checkServerAvailability(server)) {
+                    Log.w(TAG, "Found not working server! Send notification!");
                     NotificationUtils
                             .showServerDownNotification(
                                     getApplicationContext(),
@@ -63,16 +67,28 @@ public class ServerMonitorWorker extends Worker {
     }
 
     public static void scheduleWork(Context context) {
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
-                ServerMonitorWorker.class,
-                15,
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest
+                .Builder(
+                        ServerMonitorWorker.class,
+                1,
                 TimeUnit.MINUTES)
+                .setConstraints(constraints)
                 .build();
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.UPDATE,
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                 workRequest
         );
+    }
+
+    @Override
+    public void onStopped() {
+        super.onStopped();
+        Log.d(TAG, "Worker stopped");
     }
 }
