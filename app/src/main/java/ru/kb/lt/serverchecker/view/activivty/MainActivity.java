@@ -3,7 +3,6 @@ package ru.kb.lt.serverchecker.view.activivty;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,29 +13,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 import ru.kb.lt.serverchecker.R;
 import ru.kb.lt.serverchecker.backgrounds.ServerMonitorWorker;
 import ru.kb.lt.serverchecker.databinding.ActivityMainBinding;
-import ru.kb.lt.serverchecker.model.Server;
-import ru.kb.lt.serverchecker.repository.ServerChecker;
-import ru.kb.lt.serverchecker.view.custom.ServerAdapter;
+import ru.kb.lt.serverchecker.view.fragment.MainFragment;
 import ru.kb.lt.serverchecker.viewmodel.ServerViewModel;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-
-    private List<Server> servers;
-    private ServerViewModel serverViewModel;
-
-    private ServerAdapter serverAdapter;
-    private ServerAdapter.OnServerClickListener serverClickListener;
-
     private ActivityMainBinding binding;
 
     //region overdrive
@@ -47,19 +32,25 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        Log.i(TAG, "MainActivity started!");
+
+        startProgress();
         requestPermissions();
-
         initialise();
-        setListeners();
-        setAdapters();
-        setServersObserver();
 
+        startMainFragment();
         ServerMonitorWorker.scheduleWork(getApplicationContext());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        startProgress();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
         startProgress();
     }
 
@@ -78,96 +69,21 @@ public class MainActivity extends AppCompatActivity {
 
     //region initialise
     private void initialise() {
-        serverViewModel = new ViewModelProvider(this).get(ServerViewModel.class);
-        servers = new ArrayList<>();
-    }
-
-    private void setListeners() {
-        serverClickListener =
-                new ServerAdapter.OnServerClickListener() {
-                    @Override
-                    public void onServerCheckClick(Server server) {
-                        checkServer(server);
-                    }
-
-                    @Override
-                    public void onServerDeleteClick(Server server) {
-                        deleteServer(server);
-                    }
-                };
-        binding.addButton.setOnClickListener( v-> addServer());
-    }
-
-    private void setAdapters() {
-        serverAdapter = new ServerAdapter(servers, serverClickListener);
-        binding.serverRecycler.setAdapter(serverAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        binding.serverRecycler.setLayoutManager(linearLayoutManager);
-    }
-
-    private void setServersObserver() {
-        serverViewModel.getAllServers().observe(this, servers -> {
-            if (servers == null) return;
-            updateServersUi(servers);
-            checkAllServers(servers);
-            stopProgress();
-        });
+        ServerViewModel serverViewModel = new ViewModelProvider(this).get(ServerViewModel.class);
+        if (serverViewModel.getAllServers().getValue() != null) {
+            Log.i(TAG, "Current servers size is: " +
+                    serverViewModel.getAllServers().getValue().size());
+        }
     }
     //endregion
 
     //region progress
     private void startProgress() {
         binding.mainProgress.setVisibility(VISIBLE);
-        binding.serverRecycler.setVisibility(GONE);
     }
 
     private void stopProgress() {
         binding.mainProgress.setVisibility(GONE);
-        binding.serverRecycler.setVisibility(VISIBLE);
-    }
-    //endregion
-
-    //region server_work
-    private void addServer() {
-        Intent intent = new Intent(getApplicationContext(), AddNewServerActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        startActivity(intent);
-        overridePendingTransition(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left);
-
-    }
-
-    private void checkServer(Server server) {
-        ServerChecker.checkServerAvailability(server, (isAvailable, serverName) -> {
-            for (int id = 0; id < servers.size(); id++) {
-                if (Objects.equals(servers.get(id).getName(), serverName)) {
-                    server.setAvailability(isAvailable);
-                    int finalId = id;
-                    runOnUiThread(() -> serverAdapter.notifyItemChanged(finalId));
-                    break;
-                }
-            }
-        });
-    }
-
-    private void checkAllServers(List<Server> servers) {
-        ServerChecker.checkServersAvailability(servers, (checkedServers) -> {
-            if (checkedServers == null) return;
-            updateServersUi(checkedServers);
-            Log.d(TAG, "Servers checked! " + checkedServers.size() + " " + servers.size());
-        });
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void updateServersUi(List<Server> newServers) {
-        this.servers.clear();
-        this.servers.addAll(newServers);
-        runOnUiThread(() -> serverAdapter.notifyDataSetChanged());
-    }
-
-    private void deleteServer(Server server) {
-        serverViewModel.delete(server);
     }
     //endregion
 
@@ -181,4 +97,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void startMainFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(binding.fragmentContainer.getId(), new MainFragment())
+                .addToBackStack(null)
+                .setCustomAnimations(
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left)
+                .commit();
+    }
 }
